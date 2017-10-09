@@ -1,6 +1,8 @@
 window.jQuery = window.$ = require('jquery');
 
 require('jstree')
+require('split-pane')
+
 $(function(){
     $("#btn01").click(function(){
         alert('ほげほげ');
@@ -13,4 +15,5 @@ $(function(){
            { "id" : "ajson4", "parent" : "ajson2", "text" : "Child 2" },
         ]
     } });
+    $('div.split-pane').splitPane();
 });
