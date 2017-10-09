@@ -4,9 +4,6 @@ require('jstree')
 require('split-pane')
 
 $(function(){
-    $("#btn01").click(function(){
-        alert('ほげほげ');
-    });
     $('#tree').jstree({ 'core' : {
         'data' : [
            { "id" : "ajson1", "parent" : "#", "text" : "Simple root node" },
