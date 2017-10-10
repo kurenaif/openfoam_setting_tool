@@ -8,7 +8,6 @@ var path = require("path")
 var dir = '.'; //引数が無いときはカレントディレクトリを対象とする
 
 var walk = function (p, fileCallback, errCallback) {
-
     fs.readdir(p, function (err, files) {
         if (err) {
             errCallback(err);
@@ -26,6 +25,67 @@ var walk = function (p, fileCallback, errCallback) {
         });
     });
 };
+
+function get_json(d) {
+    var dir_queue = [d]
+    var output = []
+
+    while (dir_queue.length > 0) {
+        p = dir_queue[0];
+        dir_queue.shift();
+        files = fs.readdirSync(p);
+
+        for (let i = 0; i < files.length; i++) {
+            f = files[i];
+            var fp = path.join(p, f); // to full-path
+            if (fs.statSync(fp).isDirectory()) {
+                dir_queue.push(fp);
+                let path_array = fp.split("/");
+                if (path_array.length === 1) {
+                    let file = fp;
+                    output.push({
+                        "id": fp,
+                        "type": "folder",
+                        "parent": "#",
+                        "text": file
+                    })
+                }
+                else {
+                    let file = path_array[path_array.length - 1];
+                    let parent = fp.slice(0, -file.length - 1);
+                    output.push({
+                        "id": fp,
+                        "type": "folder",
+                        "parent": parent,
+                        "text": file
+                    })
+                }
+            } else {
+                let path_array = fp.split("/");
+                if (path_array.length === 1) {
+                    let file = fp;
+                    output.push({
+                        "id": fp,
+                        "type": "file",
+                        "parent": "#",
+                        "text": file
+                    })
+                }
+                else {
+                    let file = path_array[path_array.length - 1];
+                    let parent = fp.slice(0, -file.length - 1);
+                    output.push({
+                        "id": fp,
+                        "type": "file",
+                        "parent": parent,
+                        "text": file
+                    })
+                }
+            }
+        }
+    }
+    return output;
+}
 
 
 mytest = [
@@ -68,7 +128,8 @@ $(function () {
             "themes": { "name": 'proton' },
             'data':
             //mytest
-            jstree_data_array
+            //jstree_data_array
+            get_json(".")
             // [
             //     { "id": "ajson1", "type":"folder", "parent": "#", "text": "Simple root node" },
             //     { "id": ".ajson2", "type": "folder", "parent": "#", "text": "Root node 2" },
@@ -91,3 +152,6 @@ $(function () {
     $('div.split-pane').splitPane();
 });
 
+
+
+console.log(get_json("."));
