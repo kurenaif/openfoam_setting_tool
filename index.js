@@ -6,7 +6,7 @@ require('split-pane')
 var fs = require("fs")
 var path = require("path")
 
-function GetJson(d) {
+var GetJson = (d) => {
     let dirQueue = [d]
     let output = []
 
