@@ -86,7 +86,3 @@ $(function () {
     });
     $('div.split-pane').splitPane();
 });
-
-
-
-console.log(GetJson("."));
