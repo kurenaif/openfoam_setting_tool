@@ -1,27 +1,29 @@
 window.jQuery = window.$ = require('jquery');
 
+
 require('jstree')
 require('split-pane')
+require('left_pane')
 
 var fs = require("fs")
 var path = require("path")
 
-function GetJson(d) {
-    let dirQueue = [d]
-    let output = []
+function get_json(d) {
+    var dir_queue = [d]
+    var output = []
 
-    while (dirQueue.length > 0) {
-        p = dirQueue[0];
-        dirQueue.shift();
+    while (dir_queue.length > 0) {
+        p = dir_queue[0];
+        dir_queue.shift();
         files = fs.readdirSync(p);
 
         for (let i = 0; i < files.length; i++) {
             f = files[i];
-            let fp = path.join(p, f); // to full-path
+            var fp = path.join(p, f); // to full-path
             if (fs.statSync(fp).isDirectory()) {
-                dirQueue.push(fp);
-                let pathArray = fp.split("/");
-                if (pathArray.length === 1) {
+                dir_queue.push(fp);
+                let path_array = fp.split("/");
+                if (path_array.length === 1) {
                     let file = fp;
                     output.push({
                         "id": fp,
@@ -31,7 +33,7 @@ function GetJson(d) {
                     })
                 }
                 else {
-                    let file = pathArray[pathArray.length - 1];
+                    let file = path_array[path_array.length - 1];
                     let parent = fp.slice(0, -file.length - 1);
                     output.push({
                         "id": fp,
@@ -41,8 +43,8 @@ function GetJson(d) {
                     })
                 }
             } else {
-                let pathArray = fp.split("/");
-                if (pathArray.length === 1) {
+                let path_array = fp.split("/");
+                if (path_array.length === 1) {
                     let file = fp;
                     output.push({
                         "id": fp,
@@ -52,7 +54,7 @@ function GetJson(d) {
                     })
                 }
                 else {
-                    let file = pathArray[pathArray.length - 1];
+                    let file = path_array[path_array.length - 1];
                     let parent = fp.slice(0, -file.length - 1);
                     output.push({
                         "id": fp,
@@ -72,7 +74,7 @@ $(function () {
         'core': {
             "check_callback": true,
             "themes": { "name": 'proton' },
-            'data': GetJson(".")
+            'data': get_json(".")
         },
         'types': {
             'folder': {
@@ -87,6 +89,4 @@ $(function () {
     $('div.split-pane').splitPane();
 });
 
-
-
-console.log(GetJson("."));
+console.log(get_json("."));
