@@ -6,9 +6,16 @@ require('split-pane')
 var fs = require("fs")
 var path = require("path")
 
-var GetJson = (d) => {
-    let dirQueue = [d]
-    let output = []
+/** @description Get directory structure JSON for jstree
+ * 
+ * @param {string} rootDir root directory name
+ * @return {json} directory structure JSON data
+ */
+var GetJson = (rootDir) => {
+    // directory queue for BFS search
+    let dirQueue = [rootDir]
+    // response json data
+    let resJSON = []
 
     while (dirQueue.length > 0) {
         p = dirQueue[0];
@@ -23,7 +30,7 @@ var GetJson = (d) => {
                 let pathArray = fp.split("/");
                 if (pathArray.length === 1) {
                     let file = fp;
-                    output.push({
+                    resJSON.push({
                         "id": fp,
                         "type": "folder",
                         "parent": "#",
@@ -33,7 +40,7 @@ var GetJson = (d) => {
                 else {
                     let file = pathArray[pathArray.length - 1];
                     let parent = fp.slice(0, -file.length - 1);
-                    output.push({
+                    resJSON.push({
                         "id": fp,
                         "type": "folder",
                         "parent": parent,
@@ -44,7 +51,7 @@ var GetJson = (d) => {
                 let pathArray = fp.split("/");
                 if (pathArray.length === 1) {
                     let file = fp;
-                    output.push({
+                    resJSON.push({
                         "id": fp,
                         "type": "file",
                         "parent": "#",
@@ -54,7 +61,7 @@ var GetJson = (d) => {
                 else {
                     let file = pathArray[pathArray.length - 1];
                     let parent = fp.slice(0, -file.length - 1);
-                    output.push({
+                    resJSON.push({
                         "id": fp,
                         "type": "file",
                         "parent": parent,
@@ -64,13 +71,19 @@ var GetJson = (d) => {
             }
         }
     }
-    return output;
+    return resJSON;
 }
 
+/** @description event handler for jstree select
+ * 
+ * @param {*} event event
+ * @param {*} data selected data
+ */
 var event = (event, data) => {
     $("#right-content").html(data.node.id + ":" + data.node.type);
 }
 
+// jquery ready...
 $(function () {
     $('#tree').on({
         'select_node.jstree': event
