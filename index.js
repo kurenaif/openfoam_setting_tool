@@ -67,8 +67,15 @@ var GetJson = (d) => {
     return output;
 }
 
+var event = (event, data) => {
+    $("#right-content").html(data.node.id + ":" + data.node.type);
+}
+
 $(function () {
-    $('#tree').jstree({
+    $('#tree').on({
+        'select_node.jstree': event
+    })
+    .jstree({
         'core': {
             "check_callback": true,
             "themes": { "name": 'proton' },
