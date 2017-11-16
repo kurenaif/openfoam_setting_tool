@@ -6,6 +6,8 @@ require('split-pane')
 var fs = require("fs")
 var path = require("path")
 
+
+
 /** @description Get directory structure JSON for jstree
  * 
  * @param {string} rootDir root directory name
@@ -97,51 +99,51 @@ var event = (event, data) => {
 			$("#right-content").html("");
 			console.log(text.split('\n'));
 			var text2 = text.split('\n');
-			
-			
-		       
-			for(let i=0; i<text2.length; i++){
-			if(text2[i] === '{'){
-			var key = text2[i-1];
-			var a = i+1;
-			
-			}
-			else if(text2[i] === '}'){
-			var value = '';
-		       
-			for(let j=a; j<i; j++){
-			value += text2[j];
-			}
-			$("#right-content").append("<p>key:" + key + "<br>values:<br>" + value.replace(/\r?\n/g,"<br>") + "</p>");
-			if(key==="FoamFile"){
-			    $("#right-content").append("<input type=text class=test id="+key+">");
-			    $("#right-content").append("<input type=text class=test id="+key+">");
-			    $("#right-content").append("<input type=text class=test id="+key+">");
-			    $("#right-content").append("<input type=text class=test id="+key+">");
-			}
-			if(key==="divSchemes"){
-                            $("#right-content").append("<input type=text class=test id="+key+">");
-                            $("#right-content").append("<input type=text class=test id="+key+">");
-                            $("#right-content").append("<input type=text class=test id="+key+">");
-                            $("#right-content").append("<input type=text class=test id="+key+">");
-			    
-                        }
 
-			else{
-			$("#right-content").append("<input type=text class=test id="+key+">");
+			var foam = {};
+			var other = {};
+			for(let i=0; i<text2.length; i++){
+				if(i<16){
+				  foam[i] = text2[i];
+				  console.log(foam[i]);
+				}
+				else{
+					other[i] = text2[i];
+					console.log(other[i]);
+				}
 			}
+			var check = 0;
+			for(let i=0; i<text2.length; i++){
+				if(text2[i] === '{' && text2[i-1] != foam[7]){
+				    var key = text2[i-1];
+					var a = i+1;
+					check = 1;					   
+				}				
+				else if(text2[i] === '}' && check == 1){
+				  var value = '';
+					for(let j=a; j<i; j++){
+						value += text2[j];
+					}
+				  $("#right-content").append("<p>key:" + key + "<br>values:<br>" + value.replace(/\r?\n/g,"<br>") + "</p>");
+				  $("#right-content").append("<input type=text class=test id="+key+">");
 			dictionary[key] = value;	
 			}
-			console.log(dictionary);
+			
 			}
 			$("#right-content").append("<button id=saveButton>save</button>");
 			$('#saveButton').click( function(){
-				var text3 = '\n';
+				var text3 = '';
 				var j = 0;
+				while(foam[j]!=null){
+					text3 += foam[j]+'\n';
+					j++;
+				}
+
 				for(key in dictionary){
 				    //console.log(key);
 					//console.log($('#'+key).val());
 					var keyvalue = $('#'+key).val();
+					
 					
 					text3 += key;
 				        text3 += "{\n";
@@ -149,22 +151,13 @@ var event = (event, data) => {
 					text3 += "\n";
 				        text3 += "}\n";
 					text3 += "\n";
-					if(j===0){
-					    text3 += "// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //\n";
-					}
-					j=j+1;
+					
 				}
 				fs.writeFile('text3.txt',text3);
 				              
 			    });
 	    });
 }
-	    
-			   
-	    
-	    
-	    
-	    
 
 // jquery ready...
 $(function () {
