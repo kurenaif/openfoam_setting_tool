@@ -6,6 +6,8 @@ require('split-pane')
 var fs = require("fs")
 var path = require("path")
 
+
+
 /** @description Get directory structure JSON for jstree
  * 
  * @param {string} rootDir root directory name
@@ -97,12 +99,26 @@ var event = (event, data) => {
 			$("#right-content").html("");
 			console.log(text.split('\n'));
 			var text2 = text.split('\n');
+			var foam = {};
+			var other = {};
 			for(let i=0; i<text2.length; i++){
-				if(text2[i] === '{'){
-					var key = text2[i-1];
-					var a = i+1;
+				if(i<16){
+				  foam[i] = text2[i];
+				  console.log(foam[i]);
 				}
-				else if(text2[i] === '}'){
+				else{
+					other[i] = text2[i];
+					console.log(other[i]);
+				}
+			}
+			var check = 0;
+			for(let i=0; i<text2.length; i++){
+				if(text2[i] === '{' && text2[i-1] != foam[7]){
+				    var key = text2[i-1];
+					var a = i+1;
+					check = 1;					   
+				}				
+				else if(text2[i] === '}' && check == 1){
 				  var value = '';
 					for(let j=a; j<i; j++){
 						value += text2[j];
@@ -110,8 +126,9 @@ var event = (event, data) => {
 				  $("#right-content").append("<p>key:" + key + "<br>values:<br>" + value.replace(/\r?\n/g,"<br>") + "</p>");
 			dictionary[key] = value;	
 			}
-			console.log(dictionary);
+			
 			}
+			console.log(dictionary);
 		} );
 	} 
 
