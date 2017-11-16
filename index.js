@@ -14,8 +14,14 @@ var path = require("path")
 var GetJson = (rootDir) => {
 	// directory queue for BFS search
 	let dirQueue = [rootDir]
-		// response json data
-		let resJSON = []
+	let rootDirPathArray = rootDir.split("/");
+	// response json data
+	let resJSON = [{
+	"id": rootDir,
+	"type": "folder",
+	"parent": "#",
+	"text": rootDir
+	}]
 
 		while (dirQueue.length > 0) {
 			p = dirQueue[0];
@@ -28,7 +34,7 @@ var GetJson = (rootDir) => {
 				if (fs.statSync(fp).isDirectory()) {
 					dirQueue.push(fp);
 					let pathArray = fp.split("/");
-					if (pathArray.length === 1) {
+					if (pathArray.length === rootDirPathArray.length) {
 						let file = fp;
 						resJSON.push({
 								"id": fp,
@@ -49,7 +55,7 @@ var GetJson = (rootDir) => {
 					}
 				} else {
 					let pathArray = fp.split("/");
-					if (pathArray.length === 1) {
+					if (pathArray.length === rootDirPathArray.length) {
 						let file = fp;
 						resJSON.push({
 								"id": fp,
@@ -111,6 +117,7 @@ var event = (event, data) => {
 
 	// jquery ready...
 	$(function () {
+			console.log(GetJson("."));
 			$('#tree').on({
 					'select_node.jstree': event
 					})
