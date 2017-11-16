@@ -125,7 +125,7 @@ var event = (event, data) => {
 						value += text2[j];
 					}
 				  $("#right-content").append("<p>key:" + key + "<br>values:<br>" + value.replace(/\r?\n/g,"<br>") + "</p>");
-				  $("#right-content").append("<input type=text class=test id="+key+">");
+				  $("#right-content").append("<input type=text class=test id="+key+" value=\""+value+"\">");
 			dictionary[key] = value;	
 			}
 			
