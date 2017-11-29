@@ -87,9 +87,6 @@ var GetJson = (rootDir) => {
  * @param {*} event event
  * @param {*} data selected data
  */
-
-
-
 var event = (event, data) => {
 	var fs = require('fs');
 	//$("#right-content").html(data.node.id + ":" + data.node.type ); 
