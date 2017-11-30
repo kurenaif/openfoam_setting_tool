@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="http://www.orangehilldev.com/jstree-bootstrap-theme/demo/assets/dist/themes/proton/style.css" />
+<link rel="stylesheet" href="node_modules/split-pane/split-pane.css" />
+<link rel="stylesheet" href="./node_modules/devtron/vendor/bootstrap/css/bootstrap.css" />
+<link rel="stylesheet" href="./style.css" />
+<style type="text/css">
+</style>
+<title>Electron Read Us</title>
+</head>
+<body>
+<div class="split-pane fixed-left">
+        <div class="split-pane-component" id="left-component">
+            <input type="file" name="dirname" webkitdirectory directory />
+            <div id="tree"></div>
+        </div>
+        <div class="split-pane-divider" id="my-divider"></div>
+        <div class="split-pane-component" id="right-component">
+    <div id="right-content"></div>
+            This is the right component
+        </div>
+    </div>
+<div id="output"></div>
+<script src="index.js"></script>
+</body>
+</html>
