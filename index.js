@@ -136,8 +136,7 @@ var event = (event, data) => {
 				}
 				$("#right-content").append("<p>" + key + "</p>");
 				for(let k = dictionary2[key]; k < dictionary3[key]+1; k++){
-					
-					$("#right-content").append("<input type=text class="+key+" id="+key+'_'+k+" value=\""+lines[k]+"\" style=\"width:100%\">");
+					$("#right-content").append("<input type=text class="+key+" id="+key+'_'+k+" value=\""+lines[k].trim()+"\" style=\"width:100%\">");
 					$("#right-content").append("<br>");
 				}
 				// $("#right-content").append("<input type=text class=test id="+key+" value=\""+value+"\">");
