@@ -6,8 +6,6 @@ require('split-pane')
 var fs = require("fs")
 var path = require("path")
 
-
-
 /** @description Get directory structure JSON for jstree
  * 
  * @param {string} rootDir root directory name
@@ -88,72 +86,81 @@ var GetJson = (rootDir) => {
  * @param {*} data selected data
  */
 var event = (event, data) => {
-	var fs = require('fs');
-	//$("#right-content").html(data.node.id + ":" + data.node.type ); 
+	// read file from data.node.id => text
+	// text: line1\nline2\nline3....
 	fs.readFile(data.node.id, 'utf8', function(error, text) {
-			var dictionary = {};
+		// reset canvas
+		$("#right-content").html("");
+		// lines: [line1, line2, line3, ...]
+		let lines = text.split('\n');
 
-			$("#right-content").html("");
-			console.log(text.split('\n'));
-			var text2 = text.split('\n');
+		let textHead = {};
+		let textBody = {};
+		// split text head and body
+		for(let i=0; i<lines.length; i++){
+			// first 16lines is header
+			if(i<16){
+				textHead[i] = lines[i];
+			}
+			// other is body
+			else{
+				textBody[i] = lines[i];
+			}
+		}
+		// OpenFOAM setting dictionray
+		// e.g.){
+		// ddtSchemes: default Euler,
+		// gradSchemes: Gauss linear,
+		// ...
+		// }
+		let dictionary = {};
+		let isFound = false;
+		// '{' position
+		let bracketBeginPos = 0;
+		for(let i = 0; i < lines.length; i++){
+			// save '{' position
+			if(lines[i] === '{'){
+				var key = lines[i-1];
+				if(key === 'FoamFile') continue;
+				bracketBeginPos = i+1;
+				isFound = true;					   
+			}				
+			else if(lines[i] === '}' && isFound === true){
+				let value = '';
+				for(let j = bracketBeginPos; j < i; j++){
+					value += lines[j];
+				}
+				$("#right-content").append("<p>key:" + key + "<br>values:<br>" + value.replace(/\r?\n/g,"<br>") + "</p>");
+				$("#right-content").append("<input type=text class=test id="+key+" value=\""+value+"\">");
+				dictionary[key] = value;	
+			}
+		}
+		$("#right-content").append("<button id=saveButton>save</button>");
+		$('#saveButton').click( function(){
+			var text3 = '';
+			var j = 0;
+			while(textHead[j]!=null){
+				text3 += textHead[j]+'\n';
+				j++;
+			}
 
-			var foam = {};
-			var other = {};
-			for(let i=0; i<text2.length; i++){
-				if(i<16){
-				  foam[i] = text2[i];
-				  console.log(foam[i]);
-				}
-				else{
-					other[i] = text2[i];
-					console.log(other[i]);
-				}
+			for(key in dictionary){
+				//console.log(key);
+				//console.log($('#'+key).val());
+				var keyvalue = $('#'+key).val();
+				
+				
+				text3 += key;
+					text3 += "{\n";
+					text3 += keyvalue;
+				text3 += "\n";
+					text3 += "}\n";
+				text3 += "\n";
+				
 			}
-			var check = 0;
-			for(let i=0; i<text2.length; i++){
-				if(text2[i] === '{' && text2[i-1] != foam[7]){
-				    var key = text2[i-1];
-					var a = i+1;
-					check = 1;					   
-				}				
-				else if(text2[i] === '}' && check == 1){
-				  var value = '';
-					for(let j=a; j<i; j++){
-						value += text2[j];
-					}
-				  $("#right-content").append("<p>key:" + key + "<br>values:<br>" + value.replace(/\r?\n/g,"<br>") + "</p>");
-				  $("#right-content").append("<input type=text class=test id="+key+" value=\""+value+"\">");
-			dictionary[key] = value;	
-			}
-			
-			}
-			$("#right-content").append("<button id=saveButton>save</button>");
-			$('#saveButton').click( function(){
-				var text3 = '';
-				var j = 0;
-				while(foam[j]!=null){
-					text3 += foam[j]+'\n';
-					j++;
-				}
-
-				for(key in dictionary){
-				    //console.log(key);
-					//console.log($('#'+key).val());
-					var keyvalue = $('#'+key).val();
-					
-					
-					text3 += key;
-				        text3 += "{\n";
-				        text3 += keyvalue;
-					text3 += "\n";
-				        text3 += "}\n";
-					text3 += "\n";
-					
-				}
-				fs.writeFile('text3.txt',text3);
-				              
-			    });
-	    });
+			fs.writeFile('text3.txt',text3);
+		});
+	});
 }
 
 // jquery ready...
@@ -164,7 +171,7 @@ $(function () {
 			})
 		.jstree({
 			'core': {
-			"check_callback": true,
+			"isFound_callback": true,
 			"themes": { "name": 'proton' },
 			'data': GetJson(".")
 			},
