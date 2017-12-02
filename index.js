@@ -134,9 +134,10 @@ var event = (event, data) => {
 				for(let j = bracketBeginPos; j < i; j++){
 					value += lines[j];
 				}
-				$("#right-content").append("<p>key:" + key + "<br>values:<br>" + value.replace(/\r?\n/g,"<br>") + "</p>");
+				$("#right-content").append("<p>" + key + "</p>");
 				for(let k = dictionary2[key]; k < dictionary3[key]+1; k++){
-					$("#right-content").append("<input type=text class=test id="+key+" value=\""+lines[k]+"\">");
+					$("#right-content").append("<input type=text class="+key+" id="+key+'_'+k+" value=\""+lines[k].trim()+"\" style=\"width:100%\">");
+					$("#right-content").append("<br>");
 				}
 				// $("#right-content").append("<input type=text class=test id="+key+" value=\""+value+"\">");
 				dictionary[key] = value;	
@@ -156,11 +157,19 @@ var event = (event, data) => {
 			for(key in dictionary){
 				//console.log(key);
 				//console.log($('#'+key).val());
-				var keyvalue = $('#'+key).val();
-				
+				let keyvalue = "";
+				let inputIds = [];
+				$('.'+key).each(function() {		
+						 inputIds.push($(this).attr('id'));
+					});
+					
+				for(inputId of inputIds){
+					keyvalue += $('#'+inputId).val() + '\n';
+				}
 				
 				text3 += key+"\n";
 					text3 += "{\n";
+					
 					text3 += keyvalue;
 				text3 += "\n";
 					text3 += "}\n";
