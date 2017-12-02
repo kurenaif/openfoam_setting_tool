@@ -114,6 +114,8 @@ var event = (event, data) => {
 		// ...
 		// }
 		let dictionary = {};
+		let dictionary2 = {};
+		let dictionary3 = {};
 		let isFound = false;
 		// '{' position
 		let bracketBeginPos = 0;
@@ -122,21 +124,28 @@ var event = (event, data) => {
 			if(lines[i] === '{'){
 				var key = lines[i-1];
 				if(key === 'FoamFile') continue;
+				dictionary2[key] = i+1;
 				bracketBeginPos = i+1;
 				isFound = true;					   
 			}				
 			else if(lines[i] === '}' && isFound === true){
 				let value = '';
+			    dictionary3[key] = i-1;
 				for(let j = bracketBeginPos; j < i; j++){
 					value += lines[j];
 				}
 				$("#right-content").append("<p>key:" + key + "<br>values:<br>" + value.replace(/\r?\n/g,"<br>") + "</p>");
-				$("#right-content").append("<input type=text class=test id="+key+" value=\""+value+"\">");
+				for(let k = dictionary2[key]; k < dictionary3[key]+1; k++){
+					$("#right-content").append("<input type=text class=test id="+key+" value=\""+lines[k]+"\">");
+				}
+				// $("#right-content").append("<input type=text class=test id="+key+" value=\""+value+"\">");
 				dictionary[key] = value;	
 			}
 		}
+		$("#right-content").append("<br><input type=text id=filesave value="+data.node.id+">");
 		$("#right-content").append("<button id=saveButton>save</button>");
-		$('#saveButton').click( function(){
+		$('#saveButton').click( function(){ 
+			alert("\""+$('#filesave').val()+'\"'+" is saved.");
 			var text3 = '';
 			var j = 0;
 			while(textHead[j]!=null){
@@ -150,7 +159,7 @@ var event = (event, data) => {
 				var keyvalue = $('#'+key).val();
 				
 				
-				text3 += key;
+				text3 += key+"\n";
 					text3 += "{\n";
 					text3 += keyvalue;
 				text3 += "\n";
@@ -158,7 +167,7 @@ var event = (event, data) => {
 				text3 += "\n";
 				
 			}
-			fs.writeFile('text3.txt',text3);
+			fs.writeFile($('#filesave').val(),text3);
 		});
 	});
 }
