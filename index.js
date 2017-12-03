@@ -11,7 +11,7 @@ var path = require("path")
  * @param {string} rootDir root directory name
  * @return {json} directory structure JSON data
  */
-var GetJson = (rootDir) => {
+var GetJson = (rootDir, ignoreFiles = []) => {
 	// directory queue for BFS search
 	let dirQueue = [rootDir]
 		let rootDirPathArray = rootDir.split("/");
@@ -31,6 +31,12 @@ var GetJson = (rootDir) => {
 		for (let i = 0; i < files.length; i++) {
 			f = files[i];
 			let fp = path.join(p, f); // to full-path
+			let isCheck = false;
+			for(let name of ignoreFiles) if(fp.includes(name)) {
+				isCheck = true;
+				break;
+			}
+			if(isCheck) continue;
 			if (fs.statSync(fp).isDirectory()) {
 				dirQueue.push(fp);
 				let pathArray = fp.split("/");
@@ -185,7 +191,7 @@ $(function () {
 			'core': {
 			"isFound_callback": true,
 			"themes": { "name": 'proton' },
-			'data': GetJson(".")
+			'data': GetJson(".", ['node_modules'])
 			},
 			'types': {
 			'folder': {
