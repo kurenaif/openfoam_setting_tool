@@ -3,12 +3,12 @@ window.jQuery = window.$ = require('jquery');
 require('jstree')
 require('split-pane')
 
-var electron = require('electron');
-var remote = electron.remote;
-var BrowserWindow = remote.BrowserWindow;
-var dialog = remote.dialog;
-var fs = require("fs");
-var path = require("path");
+const electron = require('electron');
+const remote = electron.remote;
+const BrowserWindow = remote.BrowserWindow;
+const dialog = remote.dialog;
+const fs = require("fs");
+const path = require("path");
 
 /** @description Get directory structure JSON for jstree
  * 
