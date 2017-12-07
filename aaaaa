@@ -14,31 +14,38 @@ FoamFile
     object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-ddtSchemes{
-aaa
+ddtSchemes
+{
+    default         Euler;
 }
 
-gradSchemes{
-
+gradSchemes
+{
+    default         Gauss linear;
 }
 
-divSchemes{
-
+divSchemes
+{
+    default         none;
 }
 
-laplacianSchemes{
-
+laplacianSchemes
+{
+    default         Gauss linear corrected;
 }
 
-interpolationSchemes{
-
+interpolationSchemes
+{
+    default         linear;
 }
 
-snGradSchemes{
-
+snGradSchemes
+{
+    default         corrected;
 }
 
-fluxRequired{
-
+fluxRequired
+{
+    default         no;
 }
 

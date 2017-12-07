@@ -123,6 +123,7 @@ var event = (event, data) => {
 		let isFound = false;
 		// '{' position
 		let bracketBeginPos = 0;
+		$("#right-content").append("<h2> settings of " + data.node.id + "</h2>");
 		for(let i = 0; i < lines.length; i++){
 			// save '{' position
 			if(lines[i] === '{'){
@@ -131,40 +132,51 @@ var event = (event, data) => {
 				bracketBeginPos = i+1;
 				isFound = true;					   
 			}				
+			// when apper '}', draw text and save to dictionray
 			else if(lines[i] === '}' && isFound === true){
 				let value = '';
+				$("#right-content").append("<h3>" + key + "</h3>");
 				for(let j = bracketBeginPos; j < i; j++){
 					value += lines[j];
+					$("#right-content").append("<input type=text class="+key+" id="+key+'_'+j+" value=\""+lines[j].trim()+"\" style=\"width:100%\">");
+					$("#right-content").append("<br>");
 				}
-				$("#right-content").append("<p>key:" + key + "<br>values:<br>" + value.replace(/\r?\n/g,"<br>") + "</p>");
-				$("#right-content").append("<input type=text class=test id="+key+" value=\""+value+"\">");
 				dictionary[key] = value;	
 			}
 		}
+
+		// save file button
+		$("#right-content").append("<h2> save file </h2>");
+		$("#right-content").append("<br><input type=text id=filesave value="+data.node.id+">");
 		$("#right-content").append("<button id=saveButton>save</button>");
-		$('#saveButton').click( function(){
-			var text3 = '';
-			var j = 0;
-			while(textHead[j]!=null){
-				text3 += textHead[j]+'\n';
-				j++;
+
+		// save text to file
+		$('#saveButton').click( function(){ 
+			alert("\""+$('#filesave').val()+'\"'+" is saved.");
+			let saveText = '';
+			for(let j=0;textHead[j]!=null;j++){
+				saveText += textHead[j]+'\n';
 			}
 
 			for(key in dictionary){
-				//console.log(key);
-				//console.log($('#'+key).val());
-				var keyvalue = $('#'+key).val();
+				let keyvalue = "";
+				let inputIds = [];
+				$('.'+key).each(function() {		
+						 inputIds.push($(this).attr('id'));
+					});
+					
+				for(inputId of inputIds){
+					keyvalue += $('#'+inputId).val() + '\n';
+				}
 				
-				
-				text3 += key;
-					text3 += "{\n";
-					text3 += keyvalue;
-				text3 += "\n";
-					text3 += "}\n";
-				text3 += "\n";
+				saveText += key+"\n";
+				saveText += "{\n";
+				saveText += keyvalue;
+				saveText += "}\n";
+				saveText += "\n";
 				
 			}
-			fs.writeFile('text3.txt',text3);
+			fs.writeFile($('#filesave').val(),saveText);
 		});
 	});
 }
