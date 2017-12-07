@@ -3,8 +3,12 @@ window.jQuery = window.$ = require('jquery');
 require('jstree')
 require('split-pane')
 
-var fs = require("fs")
-var path = require("path")
+var electron = require('electron');
+var remote = electron.remote;
+var BrowserWindow = remote.BrowserWindow;
+var dialog = remote.dialog;
+var fs = require("fs");
+var path = require("path");
 
 /** @description Get directory structure JSON for jstree
  * 
@@ -32,7 +36,6 @@ var GetJson = (rootDir, ignoreNames) => {
 			f = files[i];
 			let fp = path.join(p, f); // to full-path
 			let isIgnore = false
-			console.log(ignoreNames);
 			for(name of ignoreNames){
 				if(fp.includes(name)) isIgnore = true;
 			}
@@ -183,26 +186,42 @@ var event = (event, data) => {
 
 // jquery ready...
 $(function () {
-		console.log(GetJson(".", ['node_modules']));
-		$('#tree').on({
-			'select_node.jstree': event
-			})
-		.jstree({
-			'core': {
-			"isFound_callback": true,
-			"themes": { "name": 'proton' },
-			'data': GetJson(".", ['node_modules'])
-			},
-			'types': {
-			'folder': {
+	$('#dir-chooser').change(function(data){
+		console.log($(this).val());
+		$('#tree').jstree(true).settings.core.data = GetJson('/home/kurenaif/Desktop', []);
+		$('#tree').jstree(true).refresh(true);
+	});
+	$('#tree').on({
+		'select_node.jstree': event
+		})
+	.jstree({
+		'core': {
+		"isFound_callback": true,
+		"themes": { "name": 'proton' },
+		'data': GetJson(".", ['node_modules'])
+		},
+		'types': {
+		'folder': {
 
-			'icon': "glyphicon glyphicon-folder-open"
-			},
-			'file': {
-			'icon': "glyphicon glyphicon-file"
-			}
-			},
-			"plugins": ["types"],
-			});
-		$('div.split-pane').splitPane();
+		'icon': "glyphicon glyphicon-folder-open"
+		},
+		'file': {
+		'icon': "glyphicon glyphicon-file"
+		}
+		},
+		"plugins": ["types"],
+		});
+	$('div.split-pane').splitPane();
+
+	$('#folderSelect').on('click', function(){
+        var focusedWindow = BrowserWindow.getFocusedWindow();
+
+        dialog.showOpenDialog(focusedWindow, {
+            properties: ['openDirectory']
+        }, function(directories){
+            directories.forEach(function(directory){
+                console.log(directory);
+            });
+        });
+    });
 });
