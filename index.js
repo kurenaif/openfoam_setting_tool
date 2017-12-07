@@ -141,18 +141,24 @@ var event = (event, data) => {
 				$("#right-content").append("<h3>" + key + "</h3>");
 				for(let j = bracketBeginPos; j < i; j++){
 					value += lines[j];
-					$("#right-content").append("<input type=text class="+key+" id="+key+'_'+j+" value=\""+lines[j].trim()+"\" style=\"width:100%\">");
+					$("#right-content").append("<input type=text class="+key+" id="+key+'_'+j+" value=\""+lines[j].trim().replace(/"/g,'¥"')+"\" style=\"width:100%\">");
 					$("#right-content").append("<br>");
 				}
-				dictionary[key] = value;	
+				dictionary[key] = value;
 			}
+			if(isFound === false && i > 16 && lines[i+1] !== '{'){
+				key = 'null';
+				$("#right-content").append("<h3>" + key + "</h3>");
+				$("#right-content").append("<input type=text class="+key+" id="+key+'_'+i+" value=\""+lines[i]+"\" style=\"width:100%\">");
+				$("#right-content").append("<br>");
+				dictionary[key] += lines[i] + '\n';		
+			}		    
 		}
 
 		// save file button
 		$("#right-content").append("<h2> save file </h2>");
 		$("#right-content").append("<br><input type=text id=filesave value="+data.node.id+">");
 		$("#right-content").append("<button id=saveButton>save</button>");
-
 		// save text to file
 		$('#saveButton').click( function(){ 
 			alert("\""+$('#filesave').val()+'\"'+" is saved.");
@@ -172,10 +178,15 @@ var event = (event, data) => {
 					keyvalue += $('#'+inputId).val() + '\n';
 				}
 				
-				saveText += key+"\n";
+				if(key !== 'null')
+				{saveText += key
+				saveText += "\n";
 				saveText += "{\n";
+				}
 				saveText += keyvalue;
+				if(key !== 'null'){
 				saveText += "}\n";
+				}
 				saveText += "\n";
 				
 			}
