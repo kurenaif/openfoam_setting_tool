@@ -220,7 +220,8 @@ $(function () {
             properties: ['openDirectory']
         }, function(directories){
             directories.forEach(function(directory){
-                console.log(directory);
+				$('#tree').jstree(true).settings.core.data = GetJson(directory, []);
+				$('#tree').jstree(true).refresh(true);
             });
         });
     });
