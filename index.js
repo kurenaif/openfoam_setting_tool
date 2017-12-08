@@ -89,6 +89,27 @@ var GetJson = (rootDir, ignoreNames) => {
 	return resJSON;
 }
 
+var GetValues = (lines, pos) => {
+	let key = lines[pos-1];
+	let dictionary = {}
+	let value = [];
+	for(let i = pos+1; i < lines.length; i++){	
+		// when apper '}', draw text and save to dictionray
+		if(lines[i].trim() === '{'){
+			let v = GetValues(lines, i);
+			value.push(v.value);
+			i = v.pos;
+		}
+		else if(lines[i].trim() === '}'){
+			dictionary[key] = value
+			return {'value':dictionary, 'pos':i};
+		}
+		else if(lines[i+1].trim() !== '{'){
+			value.push(lines[i])
+		}
+	}
+}
+
 /** @description event handler for jstree select
  * 
  * @param {*} event event
@@ -123,20 +144,35 @@ var event = (event, data) => {
 		// ...
 		// }
 		let dictionary = {};
+		let masterDictionry = {};
+		let values = [];
+		let inSide = 0;
 		let isFound = false;
 		// '{' position
 		let bracketBeginPos = 0;
 		$("#right-content").append("<h2> settings of " + data.node.id + "</h2>");
 		for(let i = 0; i < lines.length; i++){
-			// save '{' position
-			if(lines[i] === '{'){
+			if(lines[i].trim() === '{' && inSide > 0){
+				inSide++;
 				var key = lines[i-1];
 				if(key === 'FoamFile') continue;
-				bracketBeginPos = i+1;
-				isFound = true;					   
-			}				
+				 bracketBeginPos = i+1;
+				isFound = true;
+									   
+			}
+			if(lines[i].trim() === '{' && inSide === 0){
+				var key = lines[i-1];
+				if(key === 'FoamFile') continue;
+				let res = GetValues(lines, i);
+				console.log(res);
+				inSide++;
+				 bracketBeginPos = i+1;
+				isFound = true;
+									   
+			}					
 			// when apper '}', draw text and save to dictionray
-			else if(lines[i] === '}' && isFound === true){
+			else if(lines[i].trim() === '}' && isFound === true){
+				inSide--;
 				let value = '';
 				$("#right-content").append("<h3>" + key + "</h3>");
 				for(let j = bracketBeginPos; j < i; j++){
@@ -145,6 +181,9 @@ var event = (event, data) => {
 					$("#right-content").append("<br>");
 				}
 				dictionary[key] = value;
+				if(lines[i+1].trim() === '}'){
+					break;
+				}
 			}
 			if(isFound === false && i > 16 && lines[i+1] !== '{'){
 				key = 'null';
@@ -154,6 +193,7 @@ var event = (event, data) => {
 				dictionary[key] += lines[i] + '\n';		
 			}		    
 		}
+		console.log(dictionary)
 
 		// save file button
 		$("#right-content").append("<h2> save file </h2>");
