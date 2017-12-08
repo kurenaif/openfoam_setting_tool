@@ -18,13 +18,13 @@ const path = require("path");
 var GetJson = (rootDir, ignoreNames) => {
 	// directory queue for BFS search
 	let dirQueue = [rootDir]
-		let rootDirPathArray = rootDir.split("/");
+	let rootDirPathArray = rootDir.split("/");
 	// response json data
 	let resJSON = [{
 		"id": rootDir,
-			"type": "folder",
-			"parent": "#",
-			"text": rootDir
+		"type": "folder",
+		"parent": "#",
+		"text": rootDir
 	}]
 
 	while (dirQueue.length > 0) {
@@ -36,52 +36,52 @@ var GetJson = (rootDir, ignoreNames) => {
 			f = files[i];
 			let fp = path.join(p, f); // to full-path
 			let isIgnore = false
-			for(name of ignoreNames){
-				if(fp.includes(name)) isIgnore = true;
+			for (name of ignoreNames) {
+				if (fp.includes(name)) isIgnore = true;
 			}
-			if(isIgnore) continue;
+			if (isIgnore) continue;
 			if (fs.statSync(fp).isDirectory()) {
 				dirQueue.push(fp);
 				let pathArray = fp.split("/");
 				if (pathArray.length === rootDirPathArray.length) {
 					let file = fp;
 					resJSON.push({
-							"id": fp,
-							"type": "folder",
-							"parent": "#",
-							"text": file
-							})
+						"id": fp,
+						"type": "folder",
+						"parent": "#",
+						"text": file
+					})
 				}
 				else {
 					let file = pathArray[pathArray.length - 1];
 					let parent = fp.slice(0, -file.length - 1);
 					resJSON.push({
-							"id": fp,
-							"type": "folder",
-							"parent": parent,
-							"text": file
-							})
+						"id": fp,
+						"type": "folder",
+						"parent": parent,
+						"text": file
+					})
 				}
 			} else {
 				let pathArray = fp.split("/");
 				if (pathArray.length === rootDirPathArray.length) {
 					let file = fp;
 					resJSON.push({
-							"id": fp,
-							"type": "file",
-							"parent": "#",
-							"text": file
-							})
+						"id": fp,
+						"type": "file",
+						"parent": "#",
+						"text": file
+					})
 				}
 				else {
 					let file = pathArray[pathArray.length - 1];
 					let parent = fp.slice(0, -file.length - 1);
 					resJSON.push({
-							"id": fp,
-							"type": "file",
-							"parent": parent,
-							"text": file
-							})
+						"id": fp,
+						"type": "file",
+						"parent": parent,
+						"text": file
+					})
 				}
 			}
 		}
@@ -90,21 +90,21 @@ var GetJson = (rootDir, ignoreNames) => {
 }
 
 var GetValues = (lines, pos) => {
-	let key = lines[pos-1];
+	let key = lines[pos - 1];
 	let dictionary = {}
 	let value = [];
-	for(let i = pos+1; i < lines.length; i++){	
+	for (let i = pos + 1; i < lines.length; i++) {
 		// when apper '}', draw text and save to dictionray
-		if(lines[i].trim() === '{'){
+		if (lines[i].trim() === '{') {
 			let v = GetValues(lines, i);
 			value.push(v.value);
 			i = v.pos;
 		}
-		else if(lines[i].trim() === '}'){
+		else if (lines[i].trim() === '}') {
 			dictionary[key] = value
-			return {'value':dictionary, 'pos':i};
+			return { 'value': dictionary, 'pos': i };
 		}
-		else if(lines[i+1].trim() !== '{'){
+		else if (lines[i + 1].trim() !== '{') {
 			value.push(lines[i])
 		}
 	}
@@ -118,7 +118,7 @@ var GetValues = (lines, pos) => {
 var event = (event, data) => {
 	// read file from data.node.id => text
 	// text: line1\nline2\nline3....
-	fs.readFile(data.node.id, 'utf8', function(error, text) {
+	fs.readFile(data.node.id, 'utf8', function (error, text) {
 		// reset canvas
 		$("#right-content").html("");
 		// lines: [line1, line2, line3, ...]
@@ -127,13 +127,13 @@ var event = (event, data) => {
 		let textHead = {};
 		let textBody = {};
 		// split text head and body
-		for(let i=0; i<lines.length; i++){
+		for (let i = 0; i < lines.length; i++) {
 			// first 16lines is header
-			if(i<16){
+			if (i < 16) {
 				textHead[i] = lines[i];
 			}
 			// other is body
-			else{
+			else {
 				textBody[i] = lines[i];
 			}
 		}
@@ -151,129 +151,128 @@ var event = (event, data) => {
 		// '{' position
 		let bracketBeginPos = 0;
 		$("#right-content").append("<h2> settings of " + data.node.id + "</h2>");
-		for(let i = 0; i < lines.length; i++){
-			if(lines[i].trim() === '{' && inSide > 0){
+		for (let i = 0; i < lines.length; i++) {
+			if (lines[i].trim() === '{' && inSide > 0) {
 				inSide++;
-				var key = lines[i-1];
-				if(key === 'FoamFile') continue;
-				 bracketBeginPos = i+1;
+				var key = lines[i - 1];
+				if (key === 'FoamFile') continue;
+				bracketBeginPos = i + 1;
 				isFound = true;
-									   
+
 			}
-			if(lines[i].trim() === '{' && inSide === 0){
-				var key = lines[i-1];
-				if(key === 'FoamFile') continue;
+			if (lines[i].trim() === '{' && inSide === 0) {
+				var key = lines[i - 1];
+				if (key === 'FoamFile') continue;
 				let res = GetValues(lines, i);
 				console.log(res);
 				inSide++;
-				 bracketBeginPos = i+1;
+				bracketBeginPos = i + 1;
 				isFound = true;
-									   
-			}					
+
+			}
 			// when apper '}', draw text and save to dictionray
-			else if(lines[i].trim() === '}' && isFound === true){
+			else if (lines[i].trim() === '}' && isFound === true) {
 				inSide--;
 				let value = '';
 				$("#right-content").append("<h3>" + key + "</h3>");
-				for(let j = bracketBeginPos; j < i; j++){
+				for (let j = bracketBeginPos; j < i; j++) {
 					value += lines[j];
-					$("#right-content").append("<input type=text class="+key+" id="+key+'_'+j+" value=\""+lines[j].trim().replace(/"/g,'¥"')+"\" style=\"width:100%\">");
+					$("#right-content").append("<input type=text class=" + key + " id=" + key + '_' + j + " value=\"" + lines[j].trim().replace(/"/g, '¥"') + "\" style=\"width:100%\">");
 					$("#right-content").append("<br>");
 				}
 				dictionary[key] = value;
-				if(lines[i+1].trim() === '}'){
+				if (lines[i + 1].trim() === '}') {
 					break;
 				}
 			}
-			if(isFound === false && i > 16 && lines[i+1] !== '{'){
+			if (isFound === false && i > 16 && lines[i + 1] !== '{') {
 				key = 'null';
 				$("#right-content").append("<h3>" + key + "</h3>");
-				$("#right-content").append("<input type=text class="+key+" id="+key+'_'+i+" value=\""+lines[i]+"\" style=\"width:100%\">");
+				$("#right-content").append("<input type=text class=" + key + " id=" + key + '_' + i + " value=\"" + lines[i] + "\" style=\"width:100%\">");
 				$("#right-content").append("<br>");
-				dictionary[key] += lines[i] + '\n';		
-			}		    
+				dictionary[key] += lines[i] + '\n';
+			}
 		}
 		console.log(dictionary)
 
 		// save file button
 		$("#right-content").append("<h2> save file </h2>");
-		$("#right-content").append("<br><input type=text id=filesave value="+data.node.id+">");
+		$("#right-content").append("<br><input type=text id=filesave value=" + data.node.id + ">");
 		$("#right-content").append("<button id=saveButton>save</button>");
 		// save text to file
-		$('#saveButton').click( function(){ 
-			alert("\""+$('#filesave').val()+'\"'+" is saved.");
+		$('#saveButton').click(function () {
+			alert("\"" + $('#filesave').val() + '\"' + " is saved.");
 			let saveText = '';
-			for(let j=0;textHead[j]!=null;j++){
-				saveText += textHead[j]+'\n';
+			for (let j = 0; textHead[j] != null; j++) {
+				saveText += textHead[j] + '\n';
 			}
 
-			for(key in dictionary){
+			for (key in dictionary) {
 				let keyvalue = "";
 				let inputIds = [];
-				$('.'+key).each(function() {		
-						 inputIds.push($(this).attr('id'));
-					});
-					
-				for(inputId of inputIds){
-					keyvalue += $('#'+inputId).val() + '\n';
+				$('.' + key).each(function () {
+					inputIds.push($(this).attr('id'));
+				});
+
+				for (inputId of inputIds) {
+					keyvalue += $('#' + inputId).val() + '\n';
 				}
-				
-				if(key !== 'null')
-				{saveText += key
-				saveText += "\n";
-				saveText += "{\n";
+
+				if (key !== 'null') {
+					saveText += key
+					saveText += "\n";
+					saveText += "{\n";
 				}
 				saveText += keyvalue;
-				if(key !== 'null'){
-				saveText += "}\n";
+				if (key !== 'null') {
+					saveText += "}\n";
 				}
 				saveText += "\n";
-				
+
 			}
-			fs.writeFile($('#filesave').val(),saveText);
+			fs.writeFile($('#filesave').val(), saveText);
 		});
 	});
 }
 
 // jquery ready...
 $(function () {
-	$('#dir-chooser').change(function(data){
+	$('#dir-chooser').change(function (data) {
 		console.log($(this).val());
 		$('#tree').jstree(true).settings.core.data = GetJson('/home/kurenaif/Desktop', []);
 		$('#tree').jstree(true).refresh(true);
 	});
 	$('#tree').on({
 		'select_node.jstree': event
-		})
-	.jstree({
+	}).jstree({
 		'core': {
-		"isFound_callback": true,
-		"themes": { "name": 'proton' },
-		'data': GetJson(".", ['node_modules'])
+			"isFound_callback": true,
+			"themes": { "name": 'proton' },
+			'data': GetJson(".", ['node_modules'])
 		},
 		'types': {
-		'folder': {
+			'folder': {
 
-		'icon': "glyphicon glyphicon-folder-open"
-		},
-		'file': {
-		'icon': "glyphicon glyphicon-file"
-		}
+				'icon': "glyphicon glyphicon-folder-open"
+			},
+			'file': {
+				'icon': "glyphicon glyphicon-file"
+			}
 		},
 		"plugins": ["types"],
-		});
+	});
 	$('div.split-pane').splitPane();
 
-	$('#folderSelect').on('click', function(){
-        var focusedWindow = BrowserWindow.getFocusedWindow();
+	$('#folderSelect').on('click', function () {
+		var focusedWindow = BrowserWindow.getFocusedWindow();
 
-        dialog.showOpenDialog(focusedWindow, {
-            properties: ['openDirectory']
-        }, function(directories){
-            directories.forEach(function(directory){
+		dialog.showOpenDialog(focusedWindow, {
+			properties: ['openDirectory']
+		}, function (directories) {
+			directories.forEach(function (directory) {
 				$('#tree').jstree(true).settings.core.data = GetJson(directory, []);
 				$('#tree').jstree(true).refresh(true);
-            });
-        });
-    });
+			});
+		});
+	});
 });
