@@ -11,7 +11,7 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      controlDict;
+    object      fvSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 0
@@ -39,42 +39,6 @@ FoamFile
 }
 
 6
-{
-}
-
-7
-{
-}
-
-8
-{
-}
-
-9
-{
-}
-
-10
-{
-}
-
-11
-{
-}
-
-12
-{
-}
-
-13
-{
-}
-
-14
-{
-}
-
-15
 {
 }
 

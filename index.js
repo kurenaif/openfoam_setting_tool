@@ -10,6 +10,10 @@ const dialog = remote.dialog;
 const fs = require('fs');
 const path = require('path');
 
+var isObject = function (o) {
+	return (o instanceof Object && !(o instanceof Array)) ? true : false;
+};
+
 /** @description Get directory structure JSON for jstree
  * 
  * @param {string} rootDir root directory name
@@ -95,7 +99,7 @@ var GetValues = (lines, pos) => {
 	let value = [];
 	for (let i = pos + 2; i < lines.length; i++) {
 		// when apper '}', draw text and save to dictionray
-		if (lines[i+1] === '{') {
+		if (lines[i + 1] === '{') {
 			let v = GetValues(lines, i);
 			value.push(v.value);
 			i = v.pos;
@@ -111,26 +115,60 @@ var GetValues = (lines, pos) => {
 	return value;
 };
 
-var GetHTMLText = (lines, pos) => {
-	let key = lines[pos];
-	let dictionary = {};
-	let value = [];
-	for (let i = pos + 2; i < lines.length; i++) {
-		// when apper '}', draw text and save to dictionray
-		if (lines[i+1] === '{') {
-			let v = GetValues(lines, i);
-			value.push(v.value);
-			i = v.pos;
+var GetHTMLText = (dictionary, key = 'null', depth = 0) => {
+	let res = "";
+	keyy = key.split('_');
+	keyy = keyy[keyy.length - 1];
+	if (keyy !== 'null') {
+		res += '<h' + (depth + 1) + '>' + keyy + '</h' + (depth + 1) + '>';
+	}
+	console.log('<h' + (depth + 1) + '>' + key + '</h' + (depth + 1) + '>');
+
+	console.log('key:', key);
+	let cnt = 0;
+	for (let v of dictionary) {
+		if (isObject(v)) {
+			for (let k in v) {
+				res += GetHTMLText(v[k], key + '_' + k, depth + 1);
+			}
 		}
-		else if (lines[i].trim() === '}') {
-			dictionary[key] = value;
-			return { 'value': dictionary, 'pos': i };
+		else {
+			console.log(v);
+			res += "<input type=text class=" + key + " id=" + key + '|' + cnt + " value=\"" + v + "\" style=\"width:100%\">" + '<br>';
 		}
-		else if (lines[i + 1].trim() !== '{') {
-			value.push(lines[i]);
+		cnt++;
+	}
+	return res;
+};
+
+var getSaveText = (dictionary, key = 'null', keyy = 'null', depth = 0) => {
+	let res = "";
+	if(keyy !== 'null'){
+		console.log(keyy);
+		for(let i=0;i<depth-1;i++) res += '\t';
+		res += keyy + '\n'
+		console.log('{');
+		for(let i=0;i<depth-1;i++) res += '\t';
+		res += '{\n';
+	}
+	$('.' + key).each(function () {
+		console.log($(this).val());
+		for(let i=0;i<depth;i++) res += '\t';
+		res += $(this).val() + '\n';
+	});
+	for (let v of dictionary) {
+		if (isObject(v)) {
+			for (let k in v) {
+				res += getSaveText(v[k], key + '_' + k, k , depth + 1) + '\n';
+			}
 		}
 	}
-	return value;
+	if(keyy !== 'null'){
+		for(let i=0;i<depth-1;i++) res += '\t';
+		console.log('}');
+		res += '}' + '\n';
+	}
+	return res;
 };
 
 /** @description event handler for jstree select
@@ -158,8 +196,8 @@ var event = (event, data) => {
 			// other is body
 			else {
 				let l = lines[i].trim();
-				if([0] == '/' && l[1] == '/') continue;
-				if(l == '') continue;
+				if ([0] == '/' && l[1] == '/') continue;
+				if (l == '') continue;
 				textBody.push(l);
 			}
 		}
@@ -169,24 +207,39 @@ var event = (event, data) => {
 		// gradSchemes: Gauss linear,
 		// ...
 		// }
-		let dictionary = {};
+		let dictionary = [];
 		let inSide = 0;
 		let isFound = false;
 		// '{' position
 		let bracketBeginPos = 0;
 		$('#right-content').append('<h2> settings of ' + data.node.id + '</h2>');
-		for (let i = 0; i < textBody.length-1; i++) {
-			if(textBody[i+1] === '{'){
+		for (let i = 0; i < textBody.length - 1; i++) {
+			if (textBody[i + 1] === '{') {
 				let values = GetValues(textBody, i);
 				let v = values.value;
 				i = values.pos;
-				$.extend(dictionary, v);
+				dictionary.push(v)
 			}
-			else{
-				dictionary['null'] = textBody[i];
+			else {
+				dictionary.push(textBody[i]);
 			}
 		}
 		console.log(dictionary);
+		console.log(GetHTMLText(dictionary));
+		$("#right-content").append(GetHTMLText(dictionary));
+		// save file button
+		$("#right-content").append("<h2> save file </h2>");
+		$("#right-content").append("<br><input type=text id=filesave value=" + data.node.id + ">");
+		$("#right-content").append("<button id=saveButton>save</button>");
+		// save text to file
+		$('#saveButton').click(function () {
+			let saveText = "";
+			for(let v of textHead){
+				saveText += v + '\n';
+			}
+			saveText +=  getSaveText(dictionary);
+			fs.writeFile($('#filesave').val(), saveText);
+		});
 	});
 };
 
