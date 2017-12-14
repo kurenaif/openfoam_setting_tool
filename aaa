@@ -14,67 +14,23 @@ FoamFile
     object      controlDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-0
+application     pisoFoam;
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         2;
+deltaT          0.001;
+writeControl    timeStep;
+writeInterval   100;
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  6;
+writeCompression off;
+timeFormat      general;
+timePrecision   6;
+runTimeModifiable true;
+functions
 {
-}
-
-1
-{
-}
-
-2
-{
-}
-
-3
-{
-}
-
-4
-{
-}
-
-5
-{
-}
-
-6
-{
-}
-
-7
-{
-}
-
-8
-{
-}
-
-9
-{
-}
-
-10
-{
-}
-
-11
-{
-}
-
-12
-{
-}
-
-13
-{
-}
-
-14
-{
-}
-
-15
-{
+	#include
 }
 

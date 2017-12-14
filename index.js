@@ -10,6 +10,10 @@ const dialog = remote.dialog;
 const fs = require('fs');
 const path = require('path');
 
+/** @description get is argument value Object(without array)
+ * 
+ * @param {*} o value for judgement
+ */
 var isObject = function (o) {
 	return (o instanceof Object && !(o instanceof Array)) ? true : false;
 };
@@ -93,6 +97,11 @@ var GetJson = (rootDir, ignoreNames) => {
 	return resJSON;
 };
 
+/** @description read data structure from strings
+ * 
+ * @param {*} lines string datas
+ * @param {*} pos begin position
+ */
 var GetValues = (lines, pos) => {
 	let key = lines[pos];
 	let dictionary = {};
@@ -115,12 +124,25 @@ var GetValues = (lines, pos) => {
 	return value;
 };
 
+/** @description Get array last value
+ * 
+ * @param {*} array array to get last value
+ */
+var GetLastValue = (array) => {
+	return array[array.length-1];
+};
+
+/** @description Make HTML file from dictionary data 
+ * 
+ * @param {*} dictionary dictionary data
+ * @param {*} key key
+ * @param {*} depth recursive depth
+ */
 var GetHTMLText = (dictionary, key = 'null', depth = 0) => {
-	let res = "";
-	keyy = key.split('_');
-	keyy = keyy[keyy.length - 1];
-	if (keyy !== 'null') {
-		res += '<h' + (depth + 1) + '>' + keyy + '</h' + (depth + 1) + '>';
+	let res = '';
+	let lastKey = GetLastValue(key.split('_'));
+	if (lastKey !== 'null') {
+		res += '<h' + (depth + 1) + '>' + lastKey + '</h' + (depth + 1) + '>';
 	}
 	console.log('<h' + (depth + 1) + '>' + key + '</h' + (depth + 1) + '>');
 
@@ -134,20 +156,25 @@ var GetHTMLText = (dictionary, key = 'null', depth = 0) => {
 		}
 		else {
 			console.log(v);
-			res += "<input type=text class=" + key + " id=" + key + '|' + cnt + " value=\"" + v + "\" style=\"width:100%\">" + '<br>';
+			res += '<input type=text class=' + key + ' id=' + key + '|' + cnt + ' value="' + v + '" style="width:100%">' + '<br>';
 		}
 		cnt++;
 	}
 	return res;
 };
 
-var getSaveText = (dictionary, key = 'null', keyy = 'null', depth = 0) => {
-	let res = "";
-	if(keyy !== 'null'){
-		console.log(keyy);
+/** @description make saveText from dictionary & input form
+ * 
+ * @param {*} dictionary dictionray data
+ * @param {*} key key
+ * @param {*} lastKey key 
+ * @param {*} depth recursive depth
+ */
+var getSaveText = (dictionary, key = 'null', lastKey = 'null', depth = 0) => {
+	let res = '';
+	if(lastKey !== 'null'){
 		for(let i=0;i<depth-1;i++) res += '\t';
-		res += keyy + '\n'
-		console.log('{');
+		res += lastKey + '\n';
 		for(let i=0;i<depth-1;i++) res += '\t';
 		res += '{\n';
 	}
@@ -163,7 +190,7 @@ var getSaveText = (dictionary, key = 'null', keyy = 'null', depth = 0) => {
 			}
 		}
 	}
-	if(keyy !== 'null'){
+	if(lastKey !== 'null'){
 		for(let i=0;i<depth-1;i++) res += '\t';
 		console.log('}');
 		res += '}' + '\n';
@@ -208,17 +235,13 @@ var event = (event, data) => {
 		// ...
 		// }
 		let dictionary = [];
-		let inSide = 0;
-		let isFound = false;
-		// '{' position
-		let bracketBeginPos = 0;
 		$('#right-content').append('<h2> settings of ' + data.node.id + '</h2>');
 		for (let i = 0; i < textBody.length - 1; i++) {
 			if (textBody[i + 1] === '{') {
 				let values = GetValues(textBody, i);
 				let v = values.value;
 				i = values.pos;
-				dictionary.push(v)
+				dictionary.push(v);
 			}
 			else {
 				dictionary.push(textBody[i]);
@@ -228,12 +251,12 @@ var event = (event, data) => {
 		console.log(GetHTMLText(dictionary));
 		$("#right-content").append(GetHTMLText(dictionary));
 		// save file button
-		$("#right-content").append("<h2> save file </h2>");
-		$("#right-content").append("<br><input type=text id=filesave value=" + data.node.id + ">");
-		$("#right-content").append("<button id=saveButton>save</button>");
+		$('#right-content').append('<h2> save file </h2>');
+		$('#right-content').append('<br><input type=text id=filesave value=' + data.node.id + '>');
+		$('#right-content').append('<button id=saveButton>save</button>');
 		// save text to file
 		$('#saveButton').click(function () {
-			let saveText = "";
+			let saveText = '';
 			for(let v of textHead){
 				saveText += v + '\n';
 			}
@@ -245,34 +268,36 @@ var event = (event, data) => {
 
 // jquery ready...
 $(function () {
-	$('#dir-chooser').change(function (data) {
-		console.log($(this).val());
-		$('#tree').jstree(true).settings.core.data = GetJson('/home/kurenaif/Desktop', []);
+	// event when change folder
+	$('#dir-chooser').change(function () {
+		$('#tree').jstree(true).settings.core.data = GetJson($(this).val(), []);
 		$('#tree').jstree(true).refresh(true);
 	});
+	// [left-panel] launch file viewer
 	$('#tree').on({
 		'select_node.jstree': event
 	}).jstree({
 		'core': {
-			"isFound_callback": true,
-			"themes": { "name": 'proton' },
-			'data': GetJson(".", ['node_modules'])
+			'isFound_callback': true,
+			'themes': { 'name': 'proton' },
+			'data': GetJson('.', ['node_modules'])
 		},
 		'types': {
 			'folder': {
 
-				'icon': "glyphicon glyphicon-folder-open"
+				'icon': 'glyphicon glyphicon-folder-open'
 			},
 			'file': {
-				'icon': "glyphicon glyphicon-file"
+				'icon': 'glyphicon glyphicon-file'
 			}
 		},
-		"plugins": ["types"],
+		'plugins': ['types'],
 	});
 	$('div.split-pane').splitPane();
 
+	// folder select behavior
 	$('#folderSelect').on('click', function () {
-		var focusedWindow = BrowserWindow.getFocusedWindow();
+		let focusedWindow = BrowserWindow.getFocusedWindow();
 
 		dialog.showOpenDialog(focusedWindow, {
 			properties: ['openDirectory']
