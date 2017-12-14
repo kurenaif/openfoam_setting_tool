@@ -1,14 +1,14 @@
 window.jQuery = window.$ = require('jquery');
 
-require('jstree')
-require('split-pane')
+require('jstree');
+require('split-pane');
 
 const electron = require('electron');
 const remote = electron.remote;
 const BrowserWindow = remote.BrowserWindow;
 const dialog = remote.dialog;
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const path = require('path');
 
 /** @description Get directory structure JSON for jstree
  * 
@@ -17,98 +17,121 @@ const path = require("path");
  */
 var GetJson = (rootDir, ignoreNames) => {
 	// directory queue for BFS search
-	let dirQueue = [rootDir]
-	let rootDirPathArray = rootDir.split("/");
+	let dirQueue = [rootDir];
+	let rootDirPathArray = rootDir.split('/');
 	// response json data
 	let resJSON = [{
-		"id": rootDir,
-		"type": "folder",
-		"parent": "#",
-		"text": rootDir
-	}]
+		'id': rootDir,
+		'type': 'folder',
+		'parent': '#',
+		'text': rootDir
+	}];
 
 	while (dirQueue.length > 0) {
-		p = dirQueue[0];
+		let p = dirQueue[0];
 		dirQueue.shift();
-		files = fs.readdirSync(p);
+		let files = fs.readdirSync(p);
 
 		for (let i = 0; i < files.length; i++) {
-			f = files[i];
+			let f = files[i];
 			let fp = path.join(p, f); // to full-path
-			let isIgnore = false
-			for (name of ignoreNames) {
+			let isIgnore = false;
+			for (let name of ignoreNames) {
 				if (fp.includes(name)) isIgnore = true;
 			}
 			if (isIgnore) continue;
 			if (fs.statSync(fp).isDirectory()) {
 				dirQueue.push(fp);
-				let pathArray = fp.split("/");
+				let pathArray = fp.split('/');
 				if (pathArray.length === rootDirPathArray.length) {
 					let file = fp;
 					resJSON.push({
-						"id": fp,
-						"type": "folder",
-						"parent": "#",
-						"text": file
-					})
+						'id': fp,
+						'type': 'folder',
+						'parent': '#',
+						'text': file
+					});
 				}
 				else {
 					let file = pathArray[pathArray.length - 1];
 					let parent = fp.slice(0, -file.length - 1);
 					resJSON.push({
-						"id": fp,
-						"type": "folder",
-						"parent": parent,
-						"text": file
-					})
+						'id': fp,
+						'type': 'folder',
+						'parent': parent,
+						'text': file
+					});
 				}
 			} else {
-				let pathArray = fp.split("/");
+				let pathArray = fp.split('/');
 				if (pathArray.length === rootDirPathArray.length) {
 					let file = fp;
 					resJSON.push({
-						"id": fp,
-						"type": "file",
-						"parent": "#",
-						"text": file
-					})
+						'id': fp,
+						'type': 'file',
+						'parent': '#',
+						'text': file
+					});
 				}
 				else {
 					let file = pathArray[pathArray.length - 1];
 					let parent = fp.slice(0, -file.length - 1);
 					resJSON.push({
-						"id": fp,
-						"type": "file",
-						"parent": parent,
-						"text": file
-					})
+						'id': fp,
+						'type': 'file',
+						'parent': parent,
+						'text': file
+					});
 				}
 			}
 		}
 	}
 	return resJSON;
-}
+};
 
 var GetValues = (lines, pos) => {
-	let key = lines[pos - 1];
-	let dictionary = {}
+	let key = lines[pos];
+	let dictionary = {};
 	let value = [];
-	for (let i = pos + 1; i < lines.length; i++) {
+	for (let i = pos + 2; i < lines.length; i++) {
 		// when apper '}', draw text and save to dictionray
-		if (lines[i].trim() === '{') {
+		if (lines[i+1] === '{') {
 			let v = GetValues(lines, i);
 			value.push(v.value);
 			i = v.pos;
 		}
 		else if (lines[i].trim() === '}') {
-			dictionary[key] = value
+			dictionary[key] = value;
 			return { 'value': dictionary, 'pos': i };
 		}
 		else if (lines[i + 1].trim() !== '{') {
-			value.push(lines[i])
+			value.push(lines[i]);
 		}
 	}
-}
+	return value;
+};
+
+var GetHTMLText = (lines, pos) => {
+	let key = lines[pos];
+	let dictionary = {};
+	let value = [];
+	for (let i = pos + 2; i < lines.length; i++) {
+		// when apper '}', draw text and save to dictionray
+		if (lines[i+1] === '{') {
+			let v = GetValues(lines, i);
+			value.push(v.value);
+			i = v.pos;
+		}
+		else if (lines[i].trim() === '}') {
+			dictionary[key] = value;
+			return { 'value': dictionary, 'pos': i };
+		}
+		else if (lines[i + 1].trim() !== '{') {
+			value.push(lines[i]);
+		}
+	}
+	return value;
+};
 
 /** @description event handler for jstree select
  * 
@@ -120,12 +143,12 @@ var event = (event, data) => {
 	// text: line1\nline2\nline3....
 	fs.readFile(data.node.id, 'utf8', function (error, text) {
 		// reset canvas
-		$("#right-content").html("");
+		$('#right-content').html('');
 		// lines: [line1, line2, line3, ...]
 		let lines = text.split('\n');
 
-		let textHead = {};
-		let textBody = {};
+		let textHead = [];
+		let textBody = [];
 		// split text head and body
 		for (let i = 0; i < lines.length; i++) {
 			// first 16lines is header
@@ -134,7 +157,10 @@ var event = (event, data) => {
 			}
 			// other is body
 			else {
-				textBody[i] = lines[i];
+				let l = lines[i].trim();
+				if([0] == '/' && l[1] == '/') continue;
+				if(l == '') continue;
+				textBody.push(l);
 			}
 		}
 		// OpenFOAM setting dictionray
@@ -144,96 +170,25 @@ var event = (event, data) => {
 		// ...
 		// }
 		let dictionary = {};
-		let masterDictionry = {};
-		let values = [];
 		let inSide = 0;
 		let isFound = false;
 		// '{' position
 		let bracketBeginPos = 0;
-		$("#right-content").append("<h2> settings of " + data.node.id + "</h2>");
-		for (let i = 0; i < lines.length; i++) {
-			if (lines[i].trim() === '{' && inSide > 0) {
-				inSide++;
-				var key = lines[i - 1];
-				if (key === 'FoamFile') continue;
-				bracketBeginPos = i + 1;
-				isFound = true;
-
+		$('#right-content').append('<h2> settings of ' + data.node.id + '</h2>');
+		for (let i = 0; i < textBody.length-1; i++) {
+			if(textBody[i+1] === '{'){
+				let values = GetValues(textBody, i);
+				let v = values.value;
+				i = values.pos;
+				$.extend(dictionary, v);
 			}
-			if (lines[i].trim() === '{' && inSide === 0) {
-				var key = lines[i - 1];
-				if (key === 'FoamFile') continue;
-				let res = GetValues(lines, i);
-				console.log(res);
-				inSide++;
-				bracketBeginPos = i + 1;
-				isFound = true;
-
-			}
-			// when apper '}', draw text and save to dictionray
-			else if (lines[i].trim() === '}' && isFound === true) {
-				inSide--;
-				let value = '';
-				$("#right-content").append("<h3>" + key + "</h3>");
-				for (let j = bracketBeginPos; j < i; j++) {
-					value += lines[j];
-					$("#right-content").append("<input type=text class=" + key + " id=" + key + '_' + j + " value=\"" + lines[j].trim().replace(/"/g, '¥"') + "\" style=\"width:100%\">");
-					$("#right-content").append("<br>");
-				}
-				dictionary[key] = value;
-				if (lines[i + 1].trim() === '}') {
-					break;
-				}
-			}
-			if (isFound === false && i > 16 && lines[i + 1] !== '{') {
-				key = 'null';
-				$("#right-content").append("<h3>" + key + "</h3>");
-				$("#right-content").append("<input type=text class=" + key + " id=" + key + '_' + i + " value=\"" + lines[i] + "\" style=\"width:100%\">");
-				$("#right-content").append("<br>");
-				dictionary[key] += lines[i] + '\n';
+			else{
+				dictionary['null'] = textBody[i];
 			}
 		}
-		console.log(dictionary)
-
-		// save file button
-		$("#right-content").append("<h2> save file </h2>");
-		$("#right-content").append("<br><input type=text id=filesave value=" + data.node.id + ">");
-		$("#right-content").append("<button id=saveButton>save</button>");
-		// save text to file
-		$('#saveButton').click(function () {
-			alert("\"" + $('#filesave').val() + '\"' + " is saved.");
-			let saveText = '';
-			for (let j = 0; textHead[j] != null; j++) {
-				saveText += textHead[j] + '\n';
-			}
-
-			for (key in dictionary) {
-				let keyvalue = "";
-				let inputIds = [];
-				$('.' + key).each(function () {
-					inputIds.push($(this).attr('id'));
-				});
-
-				for (inputId of inputIds) {
-					keyvalue += $('#' + inputId).val() + '\n';
-				}
-
-				if (key !== 'null') {
-					saveText += key
-					saveText += "\n";
-					saveText += "{\n";
-				}
-				saveText += keyvalue;
-				if (key !== 'null') {
-					saveText += "}\n";
-				}
-				saveText += "\n";
-
-			}
-			fs.writeFile($('#filesave').val(), saveText);
-		});
+		console.log(dictionary);
 	});
-}
+};
 
 // jquery ready...
 $(function () {
