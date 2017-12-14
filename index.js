@@ -142,9 +142,9 @@ var GetHTMLText = (dictionary, key = 'null', depth = 0) => {
 	let res = '';
 	let lastKey = GetLastValue(key.split('_'));
 	if (lastKey !== 'null') {
-		res += '<h' + (depth + 1) + '>' + lastKey + '</h' + (depth + 1) + '>';
-	}
-	console.log('<h' + (depth + 1) + '>' + key + '</h' + (depth + 1) + '>');
+		res += '<h' + (depth + 1) + ' id=body>' + lastKey + '</h' + (depth + 1) + '>';
+	} 
+	console.log('<h' + (depth + 1) + ' id=body>' + key + '</h' + (depth + 1) + '>');
 
 	console.log('key:', key);
 	let cnt = 0;
@@ -235,7 +235,7 @@ var event = (event, data) => {
 		// ...
 		// }
 		let dictionary = [];
-		$('#right-content').append('<h2> settings of ' + data.node.id + '</h2>');
+		$('#right-content').append('<h2 id=title> settings of ' + data.node.id + '</h2>');
 		for (let i = 0; i < textBody.length - 1; i++) {
 			if (textBody[i + 1] === '{') {
 				let values = GetValues(textBody, i);

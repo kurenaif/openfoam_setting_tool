@@ -18,3 +18,40 @@
         left: 20em;  /* Same as left component width */
         margin-left: 5px;  /* Same as divider width */
     }
+    #body {
+        position: relative;
+        padding-left: 25px;
+        border-bottom: solid 3px #096355;
+    }     
+    #body::before {
+        position: absolute;
+        content: '';
+        bottom: 5px;
+        left: 0;
+        width: 0;
+        height: 0;
+        border: none;
+        border-left: solid 10px #36D81F;
+        border-right: solid 10px #FFE607;
+        border-bottom: solid 10px #087FD8;
+        border-top: solid 10px #FF3914;
+    }
+    #body::after {
+        position: absolute;
+        content: '';
+        bottom: -3px;
+        width: 100%;
+        border-bottom: solid 3px #FFFFFF;
+        }
+    #title {
+        color: #364e96;
+        border-bottom: solid 3px #364e96;
+    }
+    h3{
+        left: 30px;
+    }
+    .p{
+        left: 50px;
+    }
+
+
