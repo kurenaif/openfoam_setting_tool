@@ -17,4 +17,29 @@
     #right-component {
         left: 20em;  /* Same as left component width */
         margin-left: 5px;  /* Same as divider width */
+        
+    }
+
+    texture:focus {
+        box-shadow: 0 0 7px #3498db;
+        border: 1px solid #3498db;
+    }
+    input[type="text"] {
+        box-shadow: inset 1px 4px 9px -6px rgba(0,0,0,0.5);
+    }
+
+    .button{
+        display: inline-block;
+        padding: 0.5em 1em;
+        text-decoration: none;
+        background: #668ad8;/*ボタン色*/
+        color: #FFF;
+        border-bottom: solid 4px #627295;
+        border-radius: 3px;
+    }
+    .button{/*ボタンを押したとき*/
+        -ms-transform: translateY(4px);
+        -webkit-transform: translateY(4px);
+        transform: translateY(4px);/*下に動く*/
+        border-bottom: none;/*線を消す*/
     }

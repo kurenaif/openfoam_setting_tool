@@ -235,7 +235,7 @@ var event = (event, data) => {
 		// ...
 		// }
 		let dictionary = [];
-		$('#right-content').append('<h2> settings of ' + data.node.id + '</h2>');
+		$('#right-content').append('<h1> settings of ' + data.node.id + '</h1>');
 		for (let i = 0; i < textBody.length - 1; i++) {
 			if (textBody[i + 1] === '{') {
 				let values = GetValues(textBody, i);
@@ -253,7 +253,7 @@ var event = (event, data) => {
 		// save file button
 		$('#right-content').append('<h2> save file </h2>');
 		$('#right-content').append('<br><input type=text id=filesave value=' + data.node.id + '>');
-		$('#right-content').append('<button id=saveButton>save</button>');
+		$('#right-content').append('<button class = button id=saveButton >save</button>');
 		// save text to file
 		$('#saveButton').click(function () {
 			let saveText = '';
@@ -309,3 +309,6 @@ $(function () {
 		});
 	});
 });
+
+
+
