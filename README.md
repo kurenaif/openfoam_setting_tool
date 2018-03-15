@@ -23,16 +23,16 @@ $ electron .
 ## インストール
 
 ```
-$ git clone https://github.com/kurenaif/electron_training
-$ cd electron_training
+$ git clone https://github.com/kurenaif/openfoam_setting_tool
+$ cd openfoam_setting_tool
 $ npm install
 ```
 
 ## クイックスタート
 
 ```
-$ git clone https://github.com/kurenaif/electron_training
-$ cd electron_training
+$ git clone https://github.com/kurenaif/openfoam_setting_tool
+$ cd openfoam_setting_tool
 $ npm install
 $ npm start
 $ git clone https://github.com/kurenaif/openFOAM-tutorial-cylinder
